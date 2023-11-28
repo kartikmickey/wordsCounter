@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Counter Tool</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        textarea {
+            width: 80%;
+            height: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            resize: none;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #live-count {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #4CAF50;
+        }
+    </style>
+    <script>
+        function updateWordCount() {
+            var text = document.getElementById('text').value;
+            var wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            var liveCountElement = document.getElementById('live-count');
+
+            if (liveCountElement) liveCountElement.innerHTML = 'Word Count: ' + wordCount;
+        }
+
+        function countWords() {
+            var text = document.getElementById('text').value;
+            if (!text) return;
+
+            // Function to count syllables in a word
+            function countSyllables(word) {
+                // Very basic syllable counting logic, can be improved for accuracy
+                var syllableCount = 0;
+                var isPreviousVowel = false;
+
+                for (var i = 0; i < word.length; i++) {
+                    var currentChar = word[i].toLowerCase();
+                    var isVowel = ['a', 'e', 'i', 'o', 'u'].includes(currentChar);
+
+                    if (isVowel && !isPreviousVowel) {
+                        syllableCount++;
+                    }
+
+                    isPreviousVowel = isVowel;
+                }
+
+                return syllableCount;
+            }
+
+            // Function to count sentences in the text
+            function countSentences(text) {
+                // Very basic sentence counting logic, can be improved for accuracy
+                var sentenceCount = text.split(/[.!?]+/).filter(Boolean).length;
+                return sentenceCount;
+            }
+
+            var wordCount = text.trim().split(/\s+/).length;
+            var charCountWithSpaces = text.length;
+            var charCountWithoutSpaces = text.replace(/\s/g, '').length;
+            var syllableCount = text.trim().split(/\s+/).reduce(function (acc, word) {
+                return acc + countSyllables(word);
+            }, 0);
+            var sentenceCount = countSentences(text);
+
+            // Reading speed in words per minute (adjust as needed)
+            var readingSpeed = 200;
+
+            // Speaking speed in words per minute (adjust as needed)
+            var speakingSpeed = 150;
+
+            // Calculate reading time in minutes
+            var readingTime = Math.ceil(wordCount / readingSpeed);
+
+            // Calculate speaking time in minutes
+            var speakingTime = Math.ceil(wordCount / speakingSpeed);
+
+            var liveCountElement = document.getElementById('live-count');
+            var charCountWithSpacesElement = document.getElementById('char-count-with-spaces');
+            var charCountWithoutSpacesElement = document.getElementById('char-count-without-spaces');
+            var syllableCountElement = document.getElementById('syllable-count');
+            var sentenceCountElement = document.getElementById('sentence-count');
+            var readingTimeElement = document.getElementById('reading-time');
+            var speakingTimeElement = document.getElementById('speaking-time');
+            var resultTable = document.getElementById('result-table');
+
+            if (liveCountElement) liveCountElement.innerHTML = 'Word Count: ' + wordCount;
+            if (charCountWithSpacesElement) charCountWithSpacesElement.innerHTML = charCountWithSpaces;
+            if (charCountWithoutSpacesElement) charCountWithoutSpacesElement.innerHTML = charCountWithoutSpaces;
+            if (syllableCountElement) syllableCountElement.innerHTML = syllableCount;
+            if (sentenceCountElement) sentenceCountElement.innerHTML = sentenceCount;
+            if (readingTimeElement) readingTimeElement.innerHTML = 'Reading Time: ' + readingTime + ' minutes';
+            if (speakingTimeElement) speakingTimeElement.innerHTML = 'Speaking Time: ' + speakingTime + ' minutes';
+
+            // Clear previous content from the table
+            if (resultTable) {
+                resultTable.innerHTML= "";
+                while (resultTable.rows.length > 1) {
+                    resultTable.deleteRow(0);
+                }
+            }
+
+            // Populate the table
+            var tableRows = [
+                ['Word Count', wordCount],
+                ['Total Characters (with spaces)', charCountWithSpaces],
+                ['Total Characters (without spaces)', charCountWithoutSpaces],
+                ['Syllable Count', syllableCount],
+                ['Sentence Count', sentenceCount],
+                ['Reading Time', readingTime + ' minutes'],
+                ['Speaking Time', speakingTime + ' minutes']
+            ];
+
+            tableRows.forEach(rowData => {
+                var row = resultTable.insertRow();
+                rowData.forEach((cellData, index) => {
+                    var cell = row.insertCell(index);
+                    cell.innerHTML = cellData;
+                });
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>Word Counter Tool</h2>
+    <textarea id="text" placeholder="Type or paste your text here..." oninput="updateWordCount()" required></textarea>
+    <br>
+    <button onclick="countWords()">Count Words</button>
+    <div id="live-count">Word Count: 0</div>
+    <table id="result-table"></table>
+</body>
+</html>
